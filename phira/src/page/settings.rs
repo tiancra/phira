@@ -1,24 +1,28 @@
-prpr::tl_file!("settings");
+prpr_l10n::tl_file!("settings");
 
 use super::{NextPage, OffsetPage, Page, SharedState};
 use crate::{
-    get_data, get_data_mut,
+    dir, get_data, get_data_mut,
     popup::ChooseButton,
     save_data,
     scene::BGM_VOLUME_UPDATED,
     sync_data,
     tabs::{Tabs, TitleFn},
+    ttl,
 };
 use anyhow::Result;
+use bytesize::ByteSize;
 use macroquad::prelude::*;
 use prpr::{
     core::BOLD_FONT,
     ext::{open_url, poll_future, semi_white, LocalTask, RectExt, SafeTexture},
-    l10n::{LanguageIdentifier, LANG_IDENTS, LANG_NAMES},
-    scene::{request_input, return_input, show_error, take_input},
+    scene::{request_input, return_input, show_error, show_message, take_input},
+    task::Task,
     ui::{DRectButton, Scroll, Slider, Ui},
 };
-use std::{borrow::Cow, net::ToSocketAddrs, sync::atomic::Ordering};
+use prpr_l10n::{LanguageIdentifier, LANG_IDENTS, LANG_NAMES};
+use reqwest::Url;
+use std::{borrow::Cow, fs, io, net::ToSocketAddrs, path::PathBuf, sync::atomic::Ordering};
 
 const ITEM_HEIGHT: f32 = 0.15;
 const INTERACT_WIDTH: f32 = 0.26;
@@ -267,17 +271,27 @@ struct GeneralList {
     icon_lang: SafeTexture,
 
     lang_btn: ChooseButton,
+
+    #[cfg(target_os = "windows")]
+    fullscreen_btn: DRectButton,
+
+    cache_btn: DRectButton,
     offline_btn: DRectButton,
     server_status_btn: DRectButton,
     mp_btn: DRectButton,
     mp_addr_btn: DRectButton,
     lowq_btn: DRectButton,
     insecure_btn: DRectButton,
+    enable_anys_btn: DRectButton,
+    anys_gateway_btn: DRectButton,
+
+    cache_size: Option<u64>,
+    cache_task: Option<Task<Result<u64>>>,
 }
 
 impl GeneralList {
     pub fn new(icon_lang: SafeTexture) -> Self {
-        Self {
+        let mut this = Self {
             icon_lang,
 
             lang_btn: ChooseButton::new()
@@ -290,13 +304,25 @@ impl GeneralList {
                         .and_then(|ident| LANG_IDENTS.iter().position(|it| *it == ident))
                         .unwrap_or_default(),
                 ),
+
+            #[cfg(target_os = "windows")]
+            fullscreen_btn: DRectButton::new(),
+
+            cache_btn: DRectButton::new(),
             offline_btn: DRectButton::new(),
             server_status_btn: DRectButton::new(),
             mp_btn: DRectButton::new(),
             mp_addr_btn: DRectButton::new(),
             lowq_btn: DRectButton::new(),
             insecure_btn: DRectButton::new(),
-        }
+            enable_anys_btn: DRectButton::new(),
+            anys_gateway_btn: DRectButton::new(),
+
+            cache_size: None,
+            cache_task: None,
+        };
+        let _ = this.update_cache_size();
+        this
     }
 
     pub fn top_touch(&mut self, touch: &Touch, t: f32) -> bool {
@@ -306,10 +332,46 @@ impl GeneralList {
         false
     }
 
+    fn dir_size(path: impl Into<PathBuf>) -> io::Result<u64> {
+        fn inner(mut dir: fs::ReadDir) -> io::Result<u64> {
+            dir.try_fold(0, |acc, file| {
+                let file = file?;
+                let size = match file.metadata()? {
+                    data if data.is_dir() => inner(fs::read_dir(file.path())?)?,
+                    data => data.len(),
+                };
+                Ok(acc + size)
+            })
+        }
+
+        inner(fs::read_dir(path.into())?)
+    }
+
+    fn update_cache_size(&mut self) -> Result<()> {
+        self.cache_size = None;
+
+        let cache_dir = dir::cache()?;
+        self.cache_task = Some(Task::new(async { Ok(Self::dir_size(cache_dir)?) }));
+        Ok(())
+    }
+
     pub fn touch(&mut self, touch: &Touch, t: f32) -> Result<Option<bool>> {
         let data = get_data_mut();
         let config = &mut data.config;
         if self.lang_btn.touch(touch, t) {
+            return Ok(Some(false));
+        }
+
+        #[cfg(target_os = "windows")]
+        if self.fullscreen_btn.touch(touch, t) {
+            config.fullscreen_mode ^= true;
+            return Ok(Some(true));
+        }
+
+        if self.cache_btn.touch(touch, t) {
+            fs::remove_dir_all(dir::cache()?)?;
+            self.update_cache_size()?;
+            show_message(tl!("item-cache-cleared")).ok();
             return Ok(Some(false));
         }
         if self.offline_btn.touch(touch, t) {
@@ -336,6 +398,14 @@ impl GeneralList {
             data.accept_invalid_cert ^= true;
             return Ok(Some(true));
         }
+        if self.enable_anys_btn.touch(touch, t) {
+            data.enable_anys ^= true;
+            return Ok(Some(true));
+        }
+        if self.anys_gateway_btn.touch(touch, t) {
+            request_input("anys_gateway", &data.anys_gateway);
+            return Ok(Some(true));
+        }
         Ok(None)
     }
 
@@ -356,8 +426,22 @@ impl GeneralList {
                     data.config.mp_address = text;
                     return Ok(true);
                 }
+            } else if id == "anys_gateway" {
+                if let Err(err) = Url::parse(&text) {
+                    show_error(anyhow::Error::new(err).context(tl!("item-anys-gateway-invalid")));
+                    return Ok(false);
+                } else {
+                    data.anys_gateway = text.trim_end_matches('/').to_string();
+                    return Ok(true);
+                }
             } else {
                 return_input(id, text);
+            }
+        }
+        if let Some(task) = &mut self.cache_task {
+            if let Some(size) = task.take() {
+                self.cache_size = size.ok();
+                self.cache_task = None;
             }
         }
         Ok(false)
@@ -384,6 +468,13 @@ impl GeneralList {
             ui.fill_rect(r, (*self.icon_lang, r));
             self.lang_btn.render(ui, rr, t);
         }
+
+        #[cfg(target_os = "windows")]
+        item! {
+            render_title(ui, tl!("item-fullscreen"), Some(tl!("item-fullscreen-sub")));
+            render_switch(ui, rr, t, &mut self.fullscreen_btn, config.fullscreen_mode);
+        }
+
         item! {
             render_title(ui, tl!("item-offline"), Some(tl!("item-offline-sub")));
             render_switch(ui, rr, t, &mut self.offline_btn, config.offline_mode);
@@ -405,8 +496,26 @@ impl GeneralList {
             render_switch(ui, rr, t, &mut self.lowq_btn, config.sample_count == 1);
         }
         item! {
+            let cache_size = if let Some(size) = self.cache_size {
+                Cow::Owned(tl!("item-cache-size", "size" => ByteSize(size).to_string()))
+            } else {
+                tl!("item-cache-size-loading")
+            };
+            render_title(ui, tl!("item-clear-cache"), Some(cache_size));
+            self.cache_btn.render_text(ui, rr, t, tl!("item-clear-cache-btn"), 0.5, true);
+        }
+        h += 0.2;
+        item! {
             render_title(ui, tl!("item-insecure"), Some(tl!("item-insecure-sub")));
             render_switch(ui, rr, t, &mut self.insecure_btn, data.accept_invalid_cert);
+        }
+        item! {
+            render_title(ui, tl!("item-enable-anys"), Some(tl!("item-enable-anys-sub")));
+            render_switch(ui, rr, t, &mut self.enable_anys_btn, data.enable_anys);
+        }
+        item! {
+            render_title(ui, tl!("item-anys-gateway"), Some(tl!("item-anys-gateway-sub")));
+            self.anys_gateway_btn.render_text(ui, rr, t, &data.anys_gateway, 0.4, false);
         }
         self.lang_btn.render_top(ui, t, 1.);
         (w, h)
