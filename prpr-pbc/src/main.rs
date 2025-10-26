@@ -6,6 +6,7 @@ use prpr::{
     fs::FileSystem,
     info::ChartFormat,
     parse::{parse_pec, parse_phigros, parse_rpe},
+    info::ChartInfo,
 };
 use std::{
     any::Any,
@@ -82,8 +83,10 @@ fn main() -> Result<()> {
 
     let mut fs = Box::new(DummyFileSystem);
     let extra = ChartExtra::default();
+    // Provide a default ChartInfo when parsing RPE so the API matches the current parse_rpe signature.
+    let default_info = ChartInfo::default();
     let mut chart = match format {
-        ChartFormat::Rpe => pollster::block_on(parse_rpe(&String::from_utf8_lossy(&bytes), fs.as_mut(), extra)),
+        ChartFormat::Rpe => pollster::block_on(parse_rpe(&String::from_utf8_lossy(&bytes), &default_info, fs.as_mut(), extra)),
         ChartFormat::Pgr => parse_phigros(&String::from_utf8_lossy(&bytes), extra),
         ChartFormat::Pec => parse_pec(&String::from_utf8_lossy(&bytes), extra),
         ChartFormat::Pbc => {
