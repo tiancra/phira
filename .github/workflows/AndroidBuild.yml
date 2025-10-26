@@ -5,9 +5,9 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  ANDROID_HOME: ${{github.workspace}}/android-sdk
-  ANDROID_NDK_HOME: ${{github.workspace}}/android-ndk-r27c
-  ANDROID_NDK_ROOT: ${{github.workspace}}/android-ndk-r27c
+  ANDROID_HOME: ${{ github.workspace }}/android-sdk
+  ANDROID_NDK_HOME: ${{ github.workspace }}/android-ndk-r27c
+  ANDROID_NDK_ROOT: ${{ github.workspace }}/android-ndk-r27c
 
 jobs:
   Build:
@@ -39,13 +39,11 @@ jobs:
         mkdir -p "${ANDROID_HOME}/cmdline-tools"
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_HOME}/cmdline-tools"
-        # ensure sdkmanager path
         export PATH="${ANDROID_HOME}/cmdline-tools/cmdline-tools/bin:${PATH}"
         yes | sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools" "build-tools;33.0.2" "platforms;android-35"
 
     - name: Install Android NDK
       run: |
-        # extract NDK into workspace path matching ANDROID_NDK_HOME
         wget -q https://googledownloads.cn/android/repository/android-ndk-r27c-linux.zip -O /tmp/android-ndk-r27c.zip
         unzip -q /tmp/android-ndk-r27c.zip -d "${{ github.workspace }}"
         ls -la "${ANDROID_NDK_HOME}" || true
@@ -59,7 +57,6 @@ jobs:
     - name: Build for Android (detect crate root + build)
       run: |
         echo "PWD: $(pwd)"
-        echo "Listing repo root:"
         ls -la
 
         # detect where Cargo.toml is
@@ -68,26 +65,27 @@ jobs:
         elif [ -f phira/Cargo.toml ]; then
           CRATE_DIR="phira"
         else
-          echo "Cargo.toml not found in repo root or phira/ subdir. Aborting."
+          echo "ERROR: Cargo.toml not found in repo root or phira/ subdir."
           exit 1
         fi
 
         echo "Building crate in: $CRATE_DIR"
         cd "$CRATE_DIR"
 
-        # ensure cargo-ndk installed and available
+        # ensure cargo-ndk available via cargo subcommand (install/refresh)
         cargo install cargo-ndk --force
-        echo "cargo-ndk path: $(which cargo-ndk || true)"
-        /home/runner/.cargo/bin/cargo-ndk --version || true
 
-        # ensure target installed
+        echo "=== cargo-ndk version/help ==="
+        cargo ndk --version || true
+        cargo ndk --help || true
+
+        # ensure rust target present
         rustup target install aarch64-linux-android || true
 
-        # try explicit cargo-ndk binary with common API flags to avoid cargo front-end parsing ambiguity
-        echo "Attempt build (try --api, then --target-api):"
-        /home/runner/.cargo/bin/cargo-ndk ndk -t arm64-v8a --api 35 build --release --features "phira/chat" || \
-        /home/runner/.cargo/bin/cargo-ndk ndk -t arm64-v8a --target-api 35 build --release --features "phira/chat" || \
-        (echo "cargo-ndk binary attempts failed, try invoking as cargo subcommand with long option" && cargo ndk ndk -t arm64-v8a --target-api 35 build --release --features "phira/chat")
+        # Proper invocation: use cargo ndk (no double 'ndk'), pass platform with --platform
+        # If your cargo-ndk version expects a different long flag, cargo ndk --help above will show it.
+        echo "=== Building with cargo ndk ==="
+        cargo ndk -t arm64-v8a --platform 35 build --release --features "phira/chat"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
