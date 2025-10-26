@@ -52,9 +52,10 @@ jobs:
     
     - name: Build for Android
       run: |
-        cd phira
+        # 如果你的 Cargo.toml 在仓库根目录，请不要再 cd 进入 phira 子目录
+        # 如果 Cargo.toml 在 phira 子目录，请改成 cd phira 并确保只有一层（不要导致 phira/phira/phira）
         cargo install cargo-ndk
-        # 将 -p 35 (package) 改为 -a 35 (--api)
+        # 使用 -a/--api 指定 Android API level（不要用 -p）
         cargo ndk -t arm64-v8a -a 35 build --release --features "phira/chat"
     
     - name: Upload Artifact
