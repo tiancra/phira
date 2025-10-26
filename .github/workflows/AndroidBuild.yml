@@ -11,56 +11,88 @@ env:
 
 jobs:
   Build:
-
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v4.2.2
-    
-    - run: |
+    - name: Checkout
+      uses: actions/checkout@v4.2.2
+
+    - name: Install system deps
+      run: |
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev libasound2-dev libssl-dev pkg-config
-        sed -i '1d' prpr/src/lib.rs
-        
+        sed -i '1d' prpr/src/lib.rs || true
+
     - name: Download static-lib
       uses: suisei-cn/actions-download-file@v1.3.0
-      id: downlod-static-lib
+      id: download-static-lib
       with:
         url: "https://teamflos.github.io/phira-docs/phira_build_guide/prpr-avc.zip"
         target: ./
 
     - name: Set Up static-lib
       run: |
-        unzip prpr-avc.zip -d ./
+        unzip -o prpr-avc.zip -d ./
 
     - name: Install Android SDK Tools
       run: |
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip commandlinetools-linux-8512546_latest.zip -d $ANDROID_HOME
-        echo y | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "build-tools;33.0.2" "platforms;android-35"
+        mkdir -p "${ANDROID_HOME}/cmdline-tools"
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O /tmp/cmdline-tools.zip
+        unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_HOME}/cmdline-tools"
+        # ensure sdkmanager path
+        export PATH="${ANDROID_HOME}/cmdline-tools/cmdline-tools/bin:${PATH}"
+        yes | sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools" "build-tools;33.0.2" "platforms;android-35"
 
     - name: Install Android NDK
       run: |
-        wget https://googledownloads.cn/android/repository/android-ndk-r27c-linux.zip
-        unzip android-ndk-r27c-linux.zip -d ${{github.workspace}}
+        # extract NDK into workspace path matching ANDROID_NDK_HOME
+        wget -q https://googledownloads.cn/android/repository/android-ndk-r27c-linux.zip -O /tmp/android-ndk-r27c.zip
+        unzip -q /tmp/android-ndk-r27c.zip -d "${{ github.workspace }}"
+        ls -la "${ANDROID_NDK_HOME}" || true
 
     - name: Install Rust Toolchains
       uses: actions-rs/toolchain@v1.0.6
       with:
         toolchain: stable
         target: aarch64-linux-android
-    
-    - name: Build for Android
+
+    - name: Build for Android (detect crate root + build)
       run: |
-        # 如果你的 Cargo.toml 在仓库根目录，请不要再 cd 进入 phira 子目录
-        # 如果 Cargo.toml 在 phira 子目录，请改成 cd phira 并确保只有一层（不要导致 phira/phira/phira）
-        cargo install cargo-ndk
-        # 使用 -a/--api 指定 Android API level（不要用 -p）
-        cargo ndk -t arm64-v8a -a 35 build --release --features "phira/chat"
-    
+        echo "PWD: $(pwd)"
+        echo "Listing repo root:"
+        ls -la
+
+        # detect where Cargo.toml is
+        if [ -f Cargo.toml ]; then
+          CRATE_DIR="."
+        elif [ -f phira/Cargo.toml ]; then
+          CRATE_DIR="phira"
+        else
+          echo "Cargo.toml not found in repo root or phira/ subdir. Aborting."
+          exit 1
+        fi
+
+        echo "Building crate in: $CRATE_DIR"
+        cd "$CRATE_DIR"
+
+        # ensure cargo-ndk installed and available
+        cargo install cargo-ndk --force
+        echo "cargo-ndk path: $(which cargo-ndk || true)"
+        /home/runner/.cargo/bin/cargo-ndk --version || true
+
+        # ensure target installed
+        rustup target install aarch64-linux-android || true
+
+        # try explicit cargo-ndk binary with common API flags to avoid cargo front-end parsing ambiguity
+        echo "Attempt build (try --api, then --target-api):"
+        /home/runner/.cargo/bin/cargo-ndk ndk -t arm64-v8a --api 35 build --release --features "phira/chat" || \
+        /home/runner/.cargo/bin/cargo-ndk ndk -t arm64-v8a --target-api 35 build --release --features "phira/chat" || \
+        (echo "cargo-ndk binary attempts failed, try invoking as cargo subcommand with long option" && cargo ndk ndk -t arm64-v8a --target-api 35 build --release --features "phira/chat")
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: android-build
         path: |
+          phira/target/aarch64-linux-android/release/libphira.so
           target/aarch64-linux-android/release/libphira.so
