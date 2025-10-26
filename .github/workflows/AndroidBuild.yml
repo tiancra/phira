@@ -3,7 +3,6 @@ name: Build Android Phira
 on:
   workflow_dispatch:
 
-
 env:
   CARGO_TERM_COLOR: always
   ANDROID_HOME: ${{github.workspace}}/android-sdk
@@ -13,7 +12,7 @@ env:
 jobs:
   Build:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4.2.2
