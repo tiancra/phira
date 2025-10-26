@@ -21,7 +21,8 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev libasound2-dev libssl-dev pkg-config
-        sed -i '1d' prpr/src/lib.rs || true
+        # 不要在 CI 中无差别删除源码文件的首行（避免破坏 mod/导出）
+        # sed -i '1d' prpr/src/lib.rs  # 已移除以避免破坏 prpr crate
 
     - name: Download static-lib
       uses: suisei-cn/actions-download-file@v1.3.0
@@ -39,6 +40,7 @@ jobs:
         mkdir -p "${ANDROID_HOME}/cmdline-tools"
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d "${ANDROID_HOME}/cmdline-tools"
+        # 确保 sdkmanager 在 PATH 中
         export PATH="${ANDROID_HOME}/cmdline-tools/cmdline-tools/bin:${PATH}"
         yes | sdkmanager --sdk_root="${ANDROID_HOME}" "platform-tools" "build-tools;33.0.2" "platforms;android-35"
 
@@ -72,19 +74,18 @@ jobs:
         echo "Building crate in: $CRATE_DIR"
         cd "$CRATE_DIR"
 
-        # ensure cargo-ndk available via cargo subcommand (install/refresh)
+        # ensure cargo-ndk installed and available as cargo subcommand
         cargo install cargo-ndk --force
 
-        echo "=== cargo-ndk version/help ==="
+        echo "=== cargo-ndk info ==="
         cargo ndk --version || true
         cargo ndk --help || true
 
         # ensure rust target present
         rustup target install aarch64-linux-android || true
 
-        # Proper invocation: use cargo ndk (no double 'ndk'), pass platform with --platform
-        # If your cargo-ndk version expects a different long flag, cargo ndk --help above will show it.
-        echo "=== Building with cargo ndk ==="
+        # Proper invocation: use cargo ndk (no duplicated 'ndk'), pass platform with --platform
+        echo "=== Building with cargo ndk: target=arm64-v8a platform=35 ==="
         cargo ndk -t arm64-v8a --platform 35 build --release --features "phira/chat"
 
     - name: Upload Artifact
