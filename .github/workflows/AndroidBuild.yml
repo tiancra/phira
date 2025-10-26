@@ -86,7 +86,7 @@ jobs:
 
         # Proper invocation: use cargo ndk (no duplicated 'ndk'), pass platform with --platform
         echo "=== Building with cargo ndk: target=arm64-v8a platform=35 ==="
-        cargo ndk -t arm64-v8a --platform 35 build -p phira --release --features "phira/chat phira/video phira/closed"
+        cargo ndk -t arm64-v8a --platform 35 build -p phira --release --features "chat video"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
