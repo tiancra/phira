@@ -54,7 +54,8 @@ jobs:
       run: |
         cd phira
         cargo install cargo-ndk
-        cargo ndk -t arm64-v8a -p 35 build --release --features "phira/chat"
+        # 将 -p 35 (package) 改为 -a 35 (--api)
+        cargo ndk -t arm64-v8a -a 35 build --release --features "phira/chat"
     
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
