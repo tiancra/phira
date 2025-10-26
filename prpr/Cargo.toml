@@ -13,6 +13,7 @@ video = ["dep:prpr-avc"]
 log = ["dep:tracing-subscriber", "dep:colored"]
 
 [dependencies]
+bincode = "1.3"
 anyhow = "1.0"
 async-trait = "0.1"
 base64 = "0.22.1"

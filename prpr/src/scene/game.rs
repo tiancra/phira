@@ -865,7 +865,7 @@ impl Scene for GameScene {
                         if !self.res.config.offline_mode && !self.res.config.autoplay() && self.res.config.speed >= 1.0 - 1e-3 {
                             if let Some(player) = &self.player {
                                 if let Some(chart) = &self.res.info.id {
-                                    record_data = Some(encode_record(self, player.id, *chart));
+                                    record_data = Some(self.encode_record(player.id, *chart));
                                 }
                             }
                         }
@@ -904,6 +904,58 @@ impl Scene for GameScene {
                 }
                 self.res.alpha = 1. - (t / AFTER_TIME).min(1.).powi(2);
                 self.res.track_length
+
+                fn encode_record(&self, player_id: u64, chart_id: u64) -> Vec<u8> {
+                    use serde::Serialize;
+                    
+                    #[derive(Serialize)]
+                    struct RecordData {
+                        player_id: u64,
+                        chart_id: u64,
+                        score: u32,
+                        accuracy: f32,
+                        max_combo: u32,
+                        perfect: u32,
+                        good: u32,
+                        bad: u32,
+                        miss: u32,
+                        early: u32,
+                        late: u32,
+                        mods: u32,
+                        timestamp: u64,
+                    }
+
+                    let result = self.judge.result();
+                    let counts = self.judge.counts();
+                    
+                    let record = RecordData {
+                        player_id,
+                        chart_id,
+                        score: result.score,
+                        accuracy: result.accuracy,
+                        max_combo: result.max_combo,
+                        perfect: counts[0],
+                        good: counts[1],
+                        bad: counts[2],
+                        miss: counts[3],
+                        early: counts[4],
+                        late: counts[5],
+                        mods: self.res.config.mods.bits(),
+                        timestamp: std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .unwrap_or_default()
+                            .as_secs(),
+                    };
+
+                    // 使用 bincode 进行序列化
+                    match bincode::serialize(&record) {
+                        Ok(data) => data,
+                        Err(e) => {
+                            warn!("Failed to serialize record: {}", e);
+                            Vec::new()
+                        }
+                    }
+                }
             }
         };
         let time = (time - offset).max(0.);
