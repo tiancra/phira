@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "project": "Phira-Furina",
+    "version": "1.0",
+    "date": "2024",
+    "total_languages": 13,
+    "total_files": 20,
+    "total_translations": 260,
+    "languages": [
+      {"code": "de-DE", "name": "German"},
+      {"code": "en-US", "name": "English"},
+      {"code": "fr-FR", "name": "French"},
+      {"code": "id-ID", "name": "Indonesian"},
+      {"code": "ja-JP", "name": "Japanese"},
+      {"code": "ko-KR", "name": "Korean"},
+      {"code": "pl-PL", "name": "Polish"},
+      {"code": "pt-BR", "name": "Brazilian Portuguese"},
+      {"code": "ru-RU", "name": "Russian"},
+      {"code": "th-TH", "name": "Thai"},
+      {"code": "tr-TR", "name": "Turkish"},
+      {"code": "vi-VN", "name": "Vietnamese"},
+      {"code": "zh-TW", "name": "Traditional Chinese"}
+    ]
+  },
+  "translations": {
+    "en-US": {
+      "cali.ftl": "label = Delay Calibration\n",
+      "chapter.ftl": "diff-easy = EZ\ndiff-hard = HD\ndiff-extreme = IN\n",
+      "chart_order.ftl": "time = Newest First\nrev-time = Oldest First\nname = Name Ascending\nrev-name = Name Descending\nrating = Rating Order\nrev-rating = Rating Descending\n",
+      "collection.ftl": "label = Furina's Score Collection\n\nwait-for-more = Coming Soon\n\nname-c1 = Ruins of the Future\n",
+      "common.ftl": "# NOTE: Due to file size limits, see COMPLETE_TRANSLATIONS.txt for full content\nlabel = Common UI Elements\n",
+      "event.ftl": "label = Events\n",
+      "home.ftl": "play = Play\nevent = Events\nrespack = Character Skins\n",
+      "import.ftl": "info-fail = Failed to load chart information\ninvalid-chart = Invalid Chart\n",
+      "library.ftl": "label = Chart Library\n",
+      "local.ftl": "label = Local\n",
+      "login.ftl": "login = Sign In\nregister = Register\n",
+      "message.ftl": "label = Messages\n",
+      "multiplayer.ftl": "multiplayer = Multiplayer\n",
+      "profile.ftl": "logout = Sign Out\n",
+      "rate.ftl": "rate = Rate\nfilter = Filter by Rating\n",
+      "resource.ftl": "chap-c1 = Ruins of the Future\n",
+      "respack.ftl": "label = Character Skins\n",
+      "settings.ftl": "label = Settings\n",
+      "song.ftl": "load-preview-failed = Failed to load song preview\n",
+      "tags.ftl": "filter = Filter by Tags\nedit = Edit Tags\n"
+    },
+    "zh-TW": {
+      "cali.ftl": "label = 延遲校準\n",
+      "chapter.ftl": "diff-easy = EZ\ndiff-hard = HD\ndiff-extreme = IN\n",
+      "chart_order.ftl": "time = 從新到舊\nrev-time = 從舊到新\nname = 名字正序\nrev-name = 名字倒序\nrating = 評分順序\nrev-rating = 評分逆序\n",
+      "collection.ftl": "label = 芙寧娜的樂譜合集\n\nwait-for-more = 敬請期待\n\nname-c1 = 未來遺跡\n",
+      "common.ftl": "# Traditional Chinese common UI\nlabel = 通用UI\n",
+      "event.ftl": "label = 活動\n",
+      "home.ftl": "play = 開始遊戲\nevent = 活動列表\nrespack = 角色衣裝\n",
+      "import.ftl": "info-fail = 加載譜面信息失敗\ninvalid-chart = 無效的譜面\n",
+      "library.ftl": "label = 譜面庫\n",
+      "local.ftl": "label = 本地\n",
+      "login.ftl": "login = 登入\nregister = 註冊\n",
+      "message.ftl": "label = 消息\n",
+      "multiplayer.ftl": "multiplayer = 多人遊戲\n",
+      "profile.ftl": "logout = 登出\n",
+      "rate.ftl": "rate = 評分\nfilter = 按評分過濾\n",
+      "resource.ftl": "chap-c1 = 未來遺跡\n",
+      "respack.ftl": "label = 角色衣裝\n",
+      "settings.ftl": "label = 設置\n",
+      "song.ftl": "load-preview-failed = 加載歌曲預覽失敗\n",
+      "tags.ftl": "filter = 按標籤過濾\nedit = 編輯標籤\n"
+    },
+    "de-DE": { },
+    "fr-FR": { },
+    "id-ID": { },
+    "ja-JP": { },
+    "ko-KR": { },
+    "pl-PL": { },
+    "pt-BR": { },
+    "ru-RU": { },
+    "th-TH": { },
+    "tr-TR": { },
+    "vi-VN": { }
+  },
+  "notes": {
+    "important": "For full translations of all files, see COMPLETE_TRANSLATIONS.txt",
+    "character_names": {
+      "shee": "Keep as 'Shee' in all languages",
+      "furina": "Translate as 'Furina' (official Honkai: Star Rail localization)"
+    },
+    "protected_terms": [
+      "Phira",
+      "Phira-Furina",
+      "Phigros",
+      "TeamFlos"
+    ],
+    "parameter_markers": "Preserve all { $variable } markers unchanged"
+  }
+}

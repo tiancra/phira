@@ -28,4 +28,5 @@ warn-deny-tos-policy = Chấp nhận sử dụng dịch vụ
 open-in-web = Xem trên Web
 
 main-character-name = Shee
+main-character-intro = Một cô gái bí ẩn bao quanh bởi giai điệu và sáng tác phức tạp. Giống như một phép lạ, cô vượt quá tất cả các quy luật đã biết. Đến từ tương lai, nhưng cảm giác như một sự hiện diện vĩnh hằng liên kết với bản chất của thế giới.
 main-character-intro = TODO

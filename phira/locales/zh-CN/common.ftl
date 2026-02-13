@@ -1,11 +1,11 @@
 
-del-confirm = 你确定要删除吗？
-del-confirm-content = 该操作不可被撤销。
+del-confirm = 你确定要丢弃流萤的机甲吗？
+del-confirm-content = 流萤的机甲将会永久消失！（真的很久！）
 
 cancel = 取消
 confirm = 确定
 
-release-to-refresh = 释放刷新
+release-to-refresh = 松开刷新
 
 switch-on = 开
 switch-off = 关
@@ -14,7 +14,7 @@ chart-ranked = 上架
 chart-special = 特殊
 chart-unstable = 未上架
 
-list-empty = 空空如也
+list-empty = 流萤今天啥都没有准备
 
 tos-and-policy = 《服务条款》和《隐私政策》
 tos-and-policy-desc = 在使用由 TeamFlos 提供的 Phira 线上服务部分之前，你必须阅读并同意我们的《服务条款》和《隐私政策》。
@@ -28,8 +28,8 @@ warn-deny-tos-policy = 需接受条款才可使用线上服务
 
 open-in-web = 在网站中打开
 
-main-character-name = 夕
+main-character-name = 流萤
 main-character-intro =
-  自断壁残垣中传来的歌声，被繁复乐章所萦绕的，韵律的形状。仿佛奇迹本身，无法用一切已知定律刻画的谜之少女。
-  来自未来，却让人觉着似乎是某种与世间本质关联、恒久的存在。无妨，一切无形和有形的附着已随少女的记忆模糊淡去，不见所踪。
-  翩翩然如禽羽的她，在声乐交织的梦中，看见的又是什么呢？
+  星核猎手成员，身着机械装甲「萨姆」的少女。
+  以兵器的身份诞生，因基因改造罹患「失熵」的痛苦。
+  为寻求生命的意义加入星核猎手，不断追逐违抗命运的方式。

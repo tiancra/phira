@@ -9,17 +9,17 @@ about = 关于
 
 item-lang = 语言
 item-offline = 离线模式
-item-offline-sub = 在离线模式下将不能上传成绩
+item-offline-sub = 在离线模式下将不能使用在线功能
 item-server-status = 服务器状态
 item-server-status-sub = 转到网页查看服务器状态
 check-status = 查看
 item-mp = 多人游戏
 item-mp-sub = 启用多人游戏
 item-mp-addr = 多人游戏服务器
-item-mp-addr-sub = 服务器地址，'主机:端口'
-item-mp-addr-invalid = 无效的服务器地址
+item-mp-addr-sub = 服务器地址，'主机:端口'（例如：127.0.0.1:12345）
+item-mp-addr-invalid = 无效的服务器地址，请检查服务器的IP或域名以及端口是否填写正确（暂不支持使用不带端口的IP或域名）
 item-lowq = 低画质模式
-item-lowq-sub = 建议在画面卡顿时启用
+item-lowq-sub = 建议在画面卡顿时启用，启用后会降低屏幕分辨率，可能会导致画面模糊
 item-clear-cache = 清除缓存
 item-cache-size-loading = 加载中…
 item-cache-size = 缓存大小：{ $size }
@@ -54,14 +54,14 @@ item-chart-debug-sub = 显示判定线编号和朝向
 item-touch-debug = 触摸调试
 item-touch-debug-sub = 游玩过程中显示触摸点
 
-load-cali-failed = 加载音频失败
+load-cali-failed = 音频被流萤吃掉了
 
 about-content =
-  Phira v{ $version }
+  Phira-Firefly v{ $version }
 
-  Phira 是一款玩法基于 Phigros 的非商业社区音乐游戏，使用 Rust 开发。
+  Phira-Firefly 是一款玩法基于 Phigros 的非商业社区音乐游戏，使用 Rust 开发，由天才威玩游戏基于开源代码进行二次修改。
 
-  BiliBili 账号：@Phira官方
+  BiliBili 账号：@Phira官方，@天才威玩游戏
   QQ 频道：r48eajexth
 
   感谢以下玩家对我们的支持！（按字典序排序）

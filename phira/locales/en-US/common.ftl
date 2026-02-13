@@ -29,4 +29,4 @@ warn-deny-tos-policy = You must accept to use Phira's online services.
 open-in-web = View in Web
 
 main-character-name = Shee
-main-character-intro = To be added.
+main-character-intro = A mysterious girl shrouded in melody and complex composition. Like a miracle itself, she transcends all known laws. Coming from the future, yet feeling like an eternal presence connected to the essence of the world.

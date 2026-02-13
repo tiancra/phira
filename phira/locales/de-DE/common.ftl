@@ -29,4 +29,4 @@ warn-deny-tos-policy = Du musst der Nutzung der Online-Dienste von Phira zustimm
 open-in-web = Im Web anzeigen
 
 main-character-name = Shee
-main-character-intro = Wird noch hinzugefügt.
+main-character-intro = Ein mysteriöses Mädchen von Melodie und komplexer Komposition umhüllt. Wie ein Wunder selbst transzendiert sie alle bekannten Gesetze. Sie kommt aus der Zukunft, wirkt aber wie eine ewige Präsenz, die mit dem Wesen der Welt verbunden ist.

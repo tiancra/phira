@@ -3,11 +3,11 @@ play = 游玩
 event = 活动
 respack = 资源包
 
-not-opened = 功能尚未开启
-not-logged-in = 未登录
+not-opened = 在做了在做了！
+not-logged-in = 未登录到空间站
 
-failed-to-update = 加载用户信息失败
-note-try-login-again = 提示: 请尝试重新登录
+failed-to-update = 加载流萤的机甲信息失败
+note-try-login-again = 请尝试重新登录
 
 update = v{ $version } 更新
 update-desc =

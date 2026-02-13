@@ -2,7 +2,7 @@
 label = 资源包
 
 default = 默认
-load-failed = 加载资源包失败
+load-failed = 资源包被流萤吃掉了
 
 info = 资源包信息
 info-content =
@@ -10,5 +10,5 @@ info-content =
   作者：{ $author }
   描述：{ $desc }
 
-cant-delete-builtin = 不能删除内置资源包
+cant-delete-builtin = 你是想把流萤的衣服脱光吗？
 deleted = 已删除

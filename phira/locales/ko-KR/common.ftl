@@ -29,5 +29,5 @@ warn-deny-tos-policy = 온라인 서비스를 이용하려면 동의가 필요�
 open-in-web = 웹에서 열기
 
 main-character-name = Shee
-main-character-intro = TODO
+main-character-intro = 멜로디와 복합 작곡으로 감싸인 신비한 소녀. 기적 그 자체처럼, 그녀는 모든 알려진 법칙을 초월한다. 미래에서 온 존재이지만, 세계의 본질과 연결된 영원한 존재처럼 느껴진다.
 
