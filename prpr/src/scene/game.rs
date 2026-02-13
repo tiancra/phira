@@ -40,13 +40,37 @@ use std::{
     time::Duration,
 };
 use tracing::{debug, warn};
+use base64::{engine::general_purpose::STANDARD, Engine};
 
 const PAUSE_CLICK_INTERVAL: f32 = 0.7;
 
-#[cfg(feature = "closed")]
-mod inner;
-#[cfg(feature = "closed")]
-use inner::*;
+// Score upload encoding function
+fn encode_record(scene: &GameScene, player_id: i64, chart_id: i32) -> Vec<u8> {
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct RecordData {
+        player_id: i64,
+        chart_id: i32,
+        score: u32,
+        accuracy: f32,
+        max_combo: u32,
+        counts: [u32; 4],
+        full_combo: bool,
+    }
+
+    let result = scene.judge.result();
+    let data = RecordData {
+        player_id,
+        chart_id,
+        score: result.score,
+        accuracy: result.accuracy as f32,
+        max_combo: result.max_combo,
+        counts: result.counts,
+        full_combo: result.max_combo == result.num_of_notes,
+    };
+
+    serde_json::to_vec(&data).unwrap_or_default()
+}
 
 const WAIT_TIME: f32 = 0.5;
 const AFTER_TIME: f32 = 0.7;
@@ -888,8 +912,7 @@ impl Scene for GameScene {
                 let t = time - self.res.track_length - WAIT_TIME;
                 if t >= AFTER_TIME + 0.3 {
                     let mut record_data = None;
-                    // TODO strengthen the protection
-                    #[cfg(feature = "closed")]
+                    // Score upload
                     if let Some(upload_fn) = &self.upload_fn {
                         if !self.res.config.offline_mode && !self.res.config.autoplay() && self.res.config.speed >= 1.0 - 1e-3 {
                             if let Some(player) = &self.player {
