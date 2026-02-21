@@ -736,7 +736,7 @@ impl SongScene {
     ) -> Result<LocalSceneTask> {
         let mut fs = fs_from_path(local_path)?;
         let can_rated = id.is_some() || local_path.starts_with(':');
-        #[cfg(feature = "closed")]
+        // #[cfg(feature = "closed")]
         let rated = {
             let config = &get_data().config;
             !config.offline_mode && can_rated && !mods.contains(Mods::AUTOPLAY) && config.speed >= 1.0 - 1e-3
